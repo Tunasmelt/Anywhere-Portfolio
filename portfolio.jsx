@@ -103,7 +103,7 @@ const SectionTitle = React.forwardRef(({ children, id, className = "" }, ref) =>
         className={`text-3xl sm:text-4xl font-extrabold pb-3 mb-8 relative inline-block ${className}`}
     >
         {children}
-        <span className="block h-1 w-20 bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] dark:from-[#A28BA6] dark:to-[#B9B9B0] absolute bottom-0 left-0 rounded-full"></span>
+        <span className="block h-1 w-20 bg-[#A28BA6] dark:bg-[#B9B9B0] absolute bottom-0 left-0 rounded-full transition-colors duration-300"></span>
     </h2>
 ));
 SectionTitle.displayName = 'SectionTitle';
@@ -141,7 +141,7 @@ const AnimatedButton = ({
             variantStyles = "bg-red-600 text-white hover:bg-red-700";
             break;
         default: // primary
-            variantStyles = "bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] dark:from-[#A28BA6] dark:to-[#B9B9B0] text-white hover:shadow-xl hover:scale-105";
+            variantStyles = "bg-[#A28BA6] dark:bg-[#B9B9B0] text-white hover:bg-[#B9BBB0] dark:hover:bg-[#A28BA6] hover:shadow-xl hover:scale-105";
     }
 
     return (
@@ -192,8 +192,7 @@ const Hero = ({ profile }) => {
     };
 
     return (
-        <section id="hero" className="relative pt-24 lg:pt-20 pb-28 md:py-40 overflow-hidden text-center bg-gradient-to-br from-[#F1E3E4] to-[#E8D8DD] dark:from-[#1C1D21] dark:to-[#2A2B30] transition-colors duration-500">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#A28BA6]/12 to-transparent dark:from-[#B9B9B0]/18 dark:to-transparent opacity-80 z-0"></div>
+        <section id="hero" className="relative pt-24 lg:pt-20 pb-28 md:py-40 overflow-hidden text-center bg-[#F1E3E4] dark:bg-[#1C1D21] transition-colors duration-500">
             <div className="container mx-auto px-4 relative z-10">
                 <div className="max-w-4xl mx-auto">
                     <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white leading-tight mb-3 animate-fade-in-up">
@@ -243,12 +242,7 @@ const Hero = ({ profile }) => {
 
 const TechnologyBar = ({ technologies }) => {
     return (
-        <section id="technologies" className="py-12 pb-8 bg-gradient-to-br from-[#A28BA6] via-[#B9B9B0] to-[#CBCBCC] dark:from-[#1C1D21] dark:via-[#2A2B30] dark:to-[#1C1D21] relative overflow-hidden">
-            {/* Custom background pattern for the "TECHNOLOGIES" section */}
-            <div className="absolute inset-0 z-0 opacity-10" style={{
-                backgroundImage: 'repeating-linear-gradient(135deg, #A28BA6 0, #A28BA6 1px, transparent 1px, transparent 20px)',
-                backgroundSize: '40px 40px',
-            }}></div>
+        <section id="technologies" className="py-12 pb-8 bg-[#B9BBB0] dark:bg-[#2A2B30] relative overflow-hidden transition-colors duration-500">
 
             <div className="container mx-auto px-4 relative z-10">
                 <h2 className="text-center text-3xl md:text-4xl font-extrabold text-white uppercase tracking-widest mb-12">
@@ -261,7 +255,7 @@ const TechnologyBar = ({ technologies }) => {
                             className="flex flex-col items-center group cursor-pointer animate-fade-in-up"
                             style={{animationDelay: `${index * 0.1}s`}}
                         >
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#f5f7f8] dark:bg-[#1C1D21] backdrop-blur-sm rounded-full flex items-center justify-center p-3 shadow-2xl ring-4 ring-[#E4E4E4] dark:ring-[#B9B9B0]/35 transition-all duration-300 group-hover:ring-[#A28BA6]/70 dark:group-hover:ring-[#A28BA6]/70 group-hover:scale-110 group-hover:rotate-6 group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.2)]">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F1E3E4] dark:bg-[#1C1D21] rounded-full flex items-center justify-center p-3 shadow-lg ring-2 ring-white/40 dark:ring-[#475569] transition-all duration-300 group-hover:ring-[#B9BBB0] dark:group-hover:ring-[#A28BA6] group-hover:scale-110 group-hover:shadow-xl">
                                 {tech.icon === 'Python' && <GitBranch className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
                                 {tech.icon === 'SQL' && <Database className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
                                 {tech.icon === 'Terminal' && <Code className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
@@ -277,7 +271,7 @@ const TechnologyBar = ({ technologies }) => {
                                     </span>
                                 )}
                             </div>
-                            <p className="mt-3 text-base sm:text-lg font-semibold text-white dark:text-gray-100 group-hover:text-white/90 transition-colors">
+                            <p className="mt-3 text-base sm:text-lg font-semibold text-white dark:text-gray-100 group-hover:text-[#F1E3E4] dark:group-hover:text-white transition-colors">
                                 {tech.name}
                             </p>
                         </div>
@@ -296,7 +290,6 @@ const ProjectCard = ({ project, theme }) => {
     const titleColor = isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-900';
     const textColor = isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-700';
     const stepBg = isDarkMode ? 'bg-[#1C1D21] border-[#3a3a3a]' : 'bg-[#f6f6f6] border-[#e6e6e6]';
-    const stepNumberBg = 'bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] text-white';
     const stepBorder = isDarkMode ? 'border-l border-[#A28BA6]' : 'border-l border-[#A28BA6]';
 
     return (
@@ -310,8 +303,8 @@ const ProjectCard = ({ project, theme }) => {
                     onError={(e) => e.currentTarget.src = PROJECT_PLACEHOLDER_IMAGE}
                     loading="lazy"
                 />
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] dark:from-[#A28BA6] dark:to-[#B9B9B0] text-[#1C1D21] text-xs font-medium px-3 py-1 rounded-full shadow-md flex items-center">
-                    <LayoutGrid className="w-3 h-3 mr-1 text-[#1C1D21]" />
+                <div className="absolute top-4 left-4 bg-[#A28BA6] dark:bg-[#B9B9B0] text-white dark:text-[#1C1D21] text-xs font-medium px-3 py-1 rounded-full shadow-md flex items-center transition-colors duration-300">
+                    <LayoutGrid className="w-3 h-3 mr-1" />
                     Live Dashboard Mockup
                 </div>
             </div>
@@ -364,7 +357,7 @@ const ProjectCard = ({ project, theme }) => {
                             className={`flex items-start p-4 rounded-xl shadow-md border ${isDarkMode ? 'border-gray-800' : 'border-gray-300'} ${stepBg}`}
                             style={{ transitionDelay: `${180 + idx * 70}ms` }}
                         >
-                            <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-3 font-bold text-sm ${stepNumberBg}`}>
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-3 font-bold text-sm bg-[#A28BA6] dark:bg-[#B9B9B0] text-white transition-colors duration-300">
                                 {idx + 1}
                             </div>
                             <p className={`text-base ${textColor} pt-0.5`}>
@@ -432,7 +425,7 @@ const Projects = ({ projects, theme }) => {
     const projectsToRender = (projects && projects.length > 0) ? projects : fallbackProjects;
 
     return (
-        <section id="projects" className="py-12 lg:py-16 bg-gradient-to-br from-[#E8D8DD] to-[#DDD1D8] dark:from-[#1C1D21] dark:to-[#2A2B30] transition-colors duration-500">
+        <section id="projects" className="py-12 lg:py-16 bg-[#F1E3E4] dark:bg-[#1C1D21] transition-colors duration-500">
             <div className="container mx-auto px-4">
                 <FadeInOnScroll>
                     <SectionTitle
@@ -522,7 +515,7 @@ const Contact = () => {
 
                 <form
                     onSubmit={handleSubmit}
-                    className="space-y-4 bg-gradient-to-br from-[#F1E3E4] to-[#E8D8DD] dark:from-[#2A2B30] dark:to-[#1C1D21] p-8 rounded-xl shadow-2xl border-2 border-[#CBCBCC] dark:border-[#3a3a3a]"
+                    className="space-y-4 bg-white dark:bg-[#2A2B30] p-8 rounded-xl shadow-2xl border-2 border-[#B9BBB0] dark:border-[#475569] transition-colors duration-300"
                     aria-busy={isLoading}
                 >
                     <div>
@@ -533,7 +526,7 @@ const Contact = () => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-[#d8d8d8] dark:border-[#3a3a3a] rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#A28BA6] dark:focus:border-[#A28BA6] dark:bg-[#1C1D21] dark:text-[#E4E4E4] bg-white text-gray-800 transition-colors"
+                            className="w-full px-4 py-3 border border-[#CCBCBC] dark:border-[#A28BA6]/40 rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#B9BBB0] dark:focus:border-[#B9BBB0] dark:bg-[#1C1D21] dark:text-[#F1E3E4] bg-white text-gray-800 transition-colors"
                         />
                     </div>
                     <div>
@@ -544,7 +537,7 @@ const Contact = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-[#d8d8d8] dark:border-[#3a3a3a] rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#A28BA6] dark:focus:border-[#A28BA6] dark:bg-[#1C1D21] dark:text-[#E4E4E4] bg-white text-gray-800 transition-colors"
+                            className="w-full px-4 py-3 border border-[#CCBCBC] dark:border-[#A28BA6]/40 rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#B9BBB0] dark:focus:border-[#B9BBB0] dark:bg-[#1C1D21] dark:text-[#F1E3E4] bg-white text-gray-800 transition-colors"
                         />
                     </div>
                     <div>
@@ -555,7 +548,7 @@ const Contact = () => {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             required
-                            className="w-full px-4 py-3 border border-[#d8d8d8] dark:border-[#3a3a3a] rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#A28BA6] dark:focus:border-[#A28BA6] dark:bg-[#1C1D21] dark:text-[#E4E4E4] bg-white text-gray-800 transition-colors resize-none"
+                            className="w-full px-4 py-3 border border-[#CCBCBC] dark:border-[#A28BA6]/40 rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#B9BBB0] dark:focus:border-[#B9BBB0] dark:bg-[#1C1D21] dark:text-[#F1E3E4] bg-white text-gray-800 transition-colors resize-none"
                         ></textarea>
                     </div>
                     <p
@@ -578,34 +571,10 @@ const Contact = () => {
     );
 };
 
-const ImpactMetrics = ({ metrics = [] }) => {
-    if (!metrics.length) return null;
-    return (
-        <section id="impact" className="py-16 lg:py-20 bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1f2937] text-white">
-            <div className="container mx-auto px-4">
-                <SectionTitle className="text-white">Impact At A Glance</SectionTitle>
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-                    {metrics.map((metric, idx) => (
-                        <FadeInOnScroll
-                            key={metric.label}
-                            className="rounded-2xl bg-white/5 border border-white/10 p-6 shadow-2xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1"
-                            style={{ transitionDelay: `${idx * 80}ms` }}
-                        >
-                            <p className="text-sm uppercase tracking-[0.1em] text-gray-300 mb-3">{metric.label}</p>
-                            <p className="text-4xl font-extrabold mb-2 text-[#B9B9B0]">{metric.value}</p>
-                            <p className="text-gray-200 leading-relaxed">{metric.detail}</p>
-                        </FadeInOnScroll>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-};
-
 const ResumeCTA = ({ resumeUrl }) => (
-    <section className="py-14 lg:py-16 bg-gradient-to-r from-[#A28BA6] via-[#B9B9B0] to-[#CBCBCC] dark:from-[#1C1D21] dark:via-[#2A2B30] dark:to-[#1C1D21]">
+    <section id="resume" className="py-14 lg:py-16 bg-[#CCBCBC] dark:bg-[#2A2B30] transition-colors duration-500">
         <div className="container mx-auto px-4">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 bg-white/80 dark:bg-black/70 border border-white/30 dark:border-gray-700 rounded-2xl px-6 py-8 shadow-2xl backdrop-blur">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 bg-white dark:bg-[#2A2B30] border-2 border-[#A28BA6] dark:border-[#475569] rounded-2xl px-6 py-8 shadow-xl transition-colors duration-300">
                 <div>
                     <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-2">Download my resume</h3>
                     <p className="text-gray-700 dark:text-gray-200 max-w-2xl">A concise summary of projects, metrics, and the toolchains I build with. Updated this quarter.</p>
@@ -629,7 +598,7 @@ const ResumeCTA = ({ resumeUrl }) => (
 const Testimonials = ({ testimonials = [] }) => {
     if (!testimonials.length) return null;
     return (
-        <section id="testimonials" className="py-16 lg:py-20 bg-gradient-to-br from-[#E8D8DD] to-[#DDD1D8] dark:from-[#0f172a] dark:to-[#111827]">
+        <section id="testimonials" className="py-16 lg:py-20 bg-[#B9BBB0] dark:bg-[#0f172a] transition-colors duration-500">
             <div className="container mx-auto px-4">
                 <FadeInOnScroll>
                     <SectionTitle className="text-gray-900 dark:text-white">Testimonials</SectionTitle>
@@ -638,7 +607,7 @@ const Testimonials = ({ testimonials = [] }) => {
                     {testimonials.map((person, idx) => (
                         <FadeInOnScroll
                             key={person.name}
-                            className="h-full rounded-2xl bg-white dark:bg-[#1f2937] border border-[#e5e7eb] dark:border-gray-700 p-6 shadow-lg flex flex-col"
+                            className="h-full rounded-2xl bg-white dark:bg-[#1e293b] border-2 border-[#A28BA6] dark:border-[#334155] p-6 shadow-lg flex flex-col transition-all duration-300 hover:shadow-xl hover:border-[#8B7A94] dark:hover:border-[#60a5fa]"
                             style={{ transitionDelay: `${idx * 80}ms` }}
                         >
                             <div className="flex items-center mb-4">
@@ -680,12 +649,27 @@ const App = () => {
     };
 
     useEffect(() => {
+        // Ensure theme is applied before first render
+        const root = document.documentElement;
         if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
+            root.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('dark');
+            root.classList.remove('dark');
         }
+        
+        // Force a reflow to ensure all elements update
+        void root.offsetHeight;
     }, [theme]);
+
+    // Apply theme immediately on mount to prevent flash
+    useEffect(() => {
+        const root = document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+    }, []);
 
     // --- Data Fetching ---
 
@@ -853,7 +837,6 @@ const App = () => {
             />
             <main>
                 <Hero profile={data.profile} />
-                <ImpactMetrics metrics={data.metrics} />
                 <TechnologyBar technologies={data.technologies} />
                 <Projects
                     projects={data.projects}
@@ -895,7 +878,6 @@ const Header = ({ theme, toggleTheme }) => {
 
     const navItems = [
         { href: "#hero", label: "Home", Icon: Home },
-        { href: "#impact", label: "Impact", Icon: Zap },
         { href: "#technologies", label: "Skills", Icon: Code },
         { href: "#projects", label: "Projects", Icon: Briefcase },
         { href: "#testimonials", label: "Social Proof", Icon: LayoutGrid },
@@ -920,7 +902,7 @@ const Header = ({ theme, toggleTheme }) => {
                                     targetElement.scrollIntoView({ behavior: 'smooth' });
                                 }
                             }}
-                            className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
+                            className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                             aria-label={item.label}
                         >
                             <item.Icon className="w-6 h-6" />
@@ -936,27 +918,42 @@ const Header = ({ theme, toggleTheme }) => {
             <aside className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 flex-col items-center py-6 px-3 bg-gray-100/95 dark:bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-400 dark:border-gray-800/50 transition-colors duration-500">
                 {/* Social & Theme Icons */}
                 <nav className="flex flex-col items-center space-y-6">
-                    <a href="mailto:your.email@example.com" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="Email">
+                    <a href="mailto:your.email@example.com" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="Email">
                         <Mail className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             Email
                         </span>
                     </a>
-                    <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="LinkedIn">
+                    <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="LinkedIn">
                         <Linkedin className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             LinkedIn
                         </span>
                     </a>
-                    <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="GitHub">
+                    <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="GitHub">
                         <Github className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             GitHub
                         </span>
                     </a>
                     <button
+                        onClick={() => {
+                            const element = document.getElementById('resume');
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }}
+                        className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
+                        aria-label="Download Resume"
+                    >
+                        <DownloadIcon className="w-6 h-6" />
+                        <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                            Resume
+                        </span>
+                    </button>
+                    <button
                         onClick={toggleTheme}
-                        className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
+                        className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                         aria-label="Toggle theme"
                     >
                         {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
