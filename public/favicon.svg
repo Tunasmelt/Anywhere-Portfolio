@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <style>
+      .forklift-bg { fill: #1C1D21; }
+      .forklift-metal { fill: #A28BA6; }
+      .forklift-prong { fill: #CCBCBC; }
+      .forklift-wheel { fill: #475569; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect class="forklift-bg" width="200" height="200"/>
+  
+  <!-- Forklift body/mast -->
+  <rect class="forklift-metal" x="70" y="40" width="60" height="90" rx="4"/>
+  
+  <!-- Forklift prongs (forks) -->
+  <rect class="forklift-prong" x="50" y="110" width="15" height="50" rx="3"/>
+  <rect class="forklift-prong" x="135" y="110" width="15" height="50" rx="3"/>
+  
+  <!-- Horizontal support bar -->
+  <rect class="forklift-metal" x="50" y="105" width="100" height="8" rx="2"/>
+  
+  <!-- Wheels -->
+  <circle class="forklift-wheel" cx="75" cy="170" r="12"/>
+  <circle class="forklift-wheel" cx="125" cy="170" r="12"/>
+  
+  <!-- Cabin/operator area -->
+  <rect class="forklift-metal" x="80" y="50" width="40" height="25" rx="2"/>
+  
+  <!-- Window -->
+  <rect fill="none" stroke="#F1E3E4" stroke-width="2" x="85" y="55" width="30" height="15" rx="1"/>
+</svg>

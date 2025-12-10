@@ -178,17 +178,20 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     );
 };
 
+// Helper function for smooth scrolling to section
+const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
 // --- Portfolio Sections ---
 
 const Hero = ({ profile }) => {
-    const ref = useRef(null);
-
     const scrollToProjects = () => {
-        const element = document.getElementById('projects');
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-            logEvent('cta_scroll_projects');
-        }
+        scrollToSection('projects');
+        logEvent('cta_scroll_projects');
     };
 
     return (
@@ -241,9 +244,29 @@ const Hero = ({ profile }) => {
 };
 
 const TechnologyBar = ({ technologies }) => {
+    const iconMap = {
+        Python: GitBranch,
+        SQL: Database,
+        Terminal: Code,
+        ML: LayoutGrid,
+        Tableau: Palette,
+        Excel: LayoutGrid,
+        PowerBI: Zap,
+        R: Code,
+    };
+
+    const getIconComponent = (iconName) => {
+        const IconComponent = iconMap[iconName];
+        if (IconComponent) {
+            return (
+                <IconComponent className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110" />
+            );
+        }
+        return <span className="text-xl sm:text-2xl font-bold text-[#A28BA6] dark:text-[#B9B9B0] text-center uppercase leading-none">{iconName.substring(0, 4)}</span>;
+    };
+
     return (
         <section id="technologies" className="py-12 pb-8 bg-[#B9BBB0] dark:bg-[#2A2B30] relative overflow-hidden transition-colors duration-500">
-
             <div className="container mx-auto px-4 relative z-10">
                 <h2 className="text-center text-3xl md:text-4xl font-extrabold text-white uppercase tracking-widest mb-12">
                     Technologies
@@ -256,20 +279,7 @@ const TechnologyBar = ({ technologies }) => {
                             style={{animationDelay: `${index * 0.1}s`}}
                         >
                             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#F1E3E4] dark:bg-[#1C1D21] rounded-full flex items-center justify-center p-3 shadow-lg ring-2 ring-white/40 dark:ring-[#475569] transition-all duration-300 group-hover:ring-[#B9BBB0] dark:group-hover:ring-[#A28BA6] group-hover:scale-110 group-hover:shadow-xl">
-                                {tech.icon === 'Python' && <GitBranch className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'SQL' && <Database className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'Terminal' && <Code className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'ML' && <LayoutGrid className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'Tableau' && <Palette className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'Excel' && <LayoutGrid className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'PowerBI' && <Zap className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {tech.icon === 'R' && <Code className="w-9 h-9 sm:w-10 sm:h-10 text-[#A28BA6] dark:text-[#B9B9B0] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#B9B9B0]" />}
-                                {/* Fallback for custom text, using the text itself if icon mapping is missing */}
-                                {(!tech.icon || !['Python', 'SQL', 'Terminal', 'ML', 'Tableau', 'Excel', 'PowerBI', 'R'].includes(tech.icon)) && (
-                                    <span className="text-xl sm:text-2xl font-bold text-[#A28BA6] dark:text-[#B9B9B0] text-center uppercase leading-none group-hover:text-[#B9B9B0]">
-                                        {tech.name.substring(0, 4)}
-                                    </span>
-                                )}
+                                {getIconComponent(tech.icon)}
                             </div>
                             <p className="mt-3 text-base sm:text-lg font-semibold text-white dark:text-gray-100 group-hover:text-[#F1E3E4] dark:group-hover:text-white transition-colors">
                                 {tech.name}
@@ -285,15 +295,8 @@ const TechnologyBar = ({ technologies }) => {
 const ProjectCard = ({ project, theme }) => {
     const isDarkMode = theme === 'dark';
 
-    // Tailwind classes based on theme
-    const cardBg = isDarkMode ? 'bg-[#2A2B30] border-[#3a3a3a]' : 'bg-white border-gray-300';
-    const titleColor = isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-900';
-    const textColor = isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-700';
-    const stepBg = isDarkMode ? 'bg-[#1C1D21] border-[#3a3a3a]' : 'bg-[#f6f6f6] border-[#e6e6e6]';
-    const stepBorder = isDarkMode ? 'border-l border-[#A28BA6]' : 'border-l border-[#A28BA6]';
-
     return (
-        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-12 p-6 rounded-2xl border-2 ${cardBg} shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-500 mb-16`}>
+        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-12 p-6 rounded-2xl border-2 ${isDarkMode ? 'bg-[#2A2B30] border-[#3a3a3a]' : 'bg-white border-gray-300'} shadow-2xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-500 mb-16`}>
             {/* Visual/Image Placeholder Section (Left) */}
             <div className="lg:w-1/2 flex-shrink-0 relative rounded-xl overflow-hidden shadow-2xl h-64 sm:h-80 md:h-96 bg-gray-700 dark:bg-black">
                 <img
@@ -327,7 +330,7 @@ const ProjectCard = ({ project, theme }) => {
 
                 <FadeInOnScroll
                     as="h3"
-                    className={`text-3xl font-extrabold mb-4 ${titleColor}`}
+                    className={`text-3xl font-extrabold mb-4 ${isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-900'}`}
                     style={{ transitionDelay: '60ms' }}
                 >
                     {project.name}
@@ -335,7 +338,7 @@ const ProjectCard = ({ project, theme }) => {
 
                 <FadeInOnScroll
                     as="p"
-                    className={`mb-6 text-base ${textColor}`}
+                    className={`mb-6 text-base ${isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-700'}`}
                     style={{ transitionDelay: '100ms' }}
                 >
                     {project.description}
@@ -343,7 +346,7 @@ const ProjectCard = ({ project, theme }) => {
 
                 <FadeInOnScroll
                     as="h4"
-                    className={`text-xl font-bold mb-4 ${titleColor} border-b border-[#A28BA6]/60 dark:border-[#B9B9B0]/50 pb-2 inline-block`}
+                    className={`text-xl font-bold mb-4 ${isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-900'} border-b border-[#A28BA6]/60 dark:border-[#B9B9B0]/50 pb-2 inline-block`}
                     style={{ transitionDelay: '140ms' }}
                 >
                     Key Steps & Process
@@ -354,13 +357,13 @@ const ProjectCard = ({ project, theme }) => {
                     {project.keySteps?.map((step, idx) => (
                         <FadeInOnScroll
                             key={idx}
-                            className={`flex items-start p-4 rounded-xl shadow-md border ${isDarkMode ? 'border-gray-800' : 'border-gray-300'} ${stepBg}`}
+                            className={`flex items-start p-4 rounded-xl shadow-md border ${isDarkMode ? 'bg-[#1C1D21] border-gray-800' : 'bg-[#f6f6f6] border-gray-300'}`}
                             style={{ transitionDelay: `${180 + idx * 70}ms` }}
                         >
                             <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-3 font-bold text-sm bg-[#A28BA6] dark:bg-[#B9B9B0] text-white transition-colors duration-300">
                                 {idx + 1}
                             </div>
-                            <p className={`text-base ${textColor} pt-0.5`}>
+                            <p className={`text-base ${isDarkMode ? 'text-[#E4E4E4]' : 'text-gray-700'} pt-0.5`}>
                                 {step}
                             </p>
                         </FadeInOnScroll>
@@ -372,57 +375,8 @@ const ProjectCard = ({ project, theme }) => {
     );
 };
 
-const Projects = ({ projects, theme }) => {
-    // Fallback projects if data doesn't load properly
-    const fallbackProjects = [
-        {
-            id: '1',
-            order: 1,
-            name: "E-commerce Customer Churn Prediction",
-            description: "Developed an end-to-end ML pipeline to identify high-risk customer segments, reducing churn by 12% in the subsequent quarter through targeted retention campaigns.",
-            repositoryUrl: "https://github.com/alex/churn-prediction",
-            imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
-            keySteps: [
-                "Data ingestion and cleaning from multiple e-commerce sources",
-                "Feature engineering (RFM value, purchase frequency, engagement metrics)",
-                "Built and optimized Random Forest model achieving 87% accuracy",
-                "Created a web-based deployment interface for real-time predictions",
-                "Reported key drivers of churn to marketing team with actionable insights"
-            ]
-        },
-        {
-            id: '2',
-            order: 2,
-            name: "Sales Performance Dashboard",
-            description: "A comprehensive sales analytics dashboard that tracks KPIs, revenue trends, and regional performance in real-time. Built with Tableau and connected to live sales databases for dynamic insights.",
-            repositoryUrl: "https://github.com/alex/sales-dashboard",
-            imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
-            keySteps: [
-                "Collected and cleaned sales data from multiple sources (SAP, Salesforce, Excel)",
-                "Performed exploratory data analysis to identify key metrics and patterns",
-                "Created interactive Tableau visualizations with drill-down capabilities",
-                "Implemented automated monthly data refresh pipeline using Python ETL scripts",
-                "Designed user-friendly interface enabling stakeholders to filter by region, product, and time period"
-            ]
-        },
-        {
-            id: '3',
-            order: 3,
-            name: "Market Segmentation & Customer Insights",
-            description: "Applied unsupervised learning techniques to segment 500K+ customers into distinct personas, enabling targeted marketing campaigns that increased conversion rates by 18% and improved customer lifetime value.",
-            repositoryUrl: "https://github.com/alex/customer-segmentation",
-            imageUrl: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop",
-            keySteps: [
-                "Aggregated customer behavior data from CRM, transaction logs, and web analytics",
-                "Applied K-means clustering and hierarchical clustering techniques",
-                "Validated clusters using silhouette scores and business logic",
-                "Created detailed customer personas with demographic and behavioral characteristics",
-                "Delivered presentations to executive team with strategic recommendations for each segment"
-            ]
-        },
-    ];
-
-    const projectsToRender = (projects && projects.length > 0) ? projects : fallbackProjects;
+const Projects = ({ projects = [], theme }) => {
+    if (!projects.length) return null;
 
     return (
         <section id="projects" className="py-12 lg:py-16 bg-[#F1E3E4] dark:bg-[#1C1D21] transition-colors duration-500">
@@ -437,7 +391,7 @@ const Projects = ({ projects, theme }) => {
                 </FadeInOnScroll>
 
                 <div className="space-y-20">
-                    {projectsToRender.map((project, index) => (
+                    {projects.map((project, index) => (
                         <FadeInOnScroll
                             key={project.id || index}
                             style={{ transitionDelay: `${index * 80 + 80}ms` }}
@@ -648,28 +602,12 @@ const App = () => {
         setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
     };
 
+    // Apply theme to document root - deduplicated into single effect
     useEffect(() => {
-        // Ensure theme is applied before first render
         const root = document.documentElement;
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-        
-        // Force a reflow to ensure all elements update
-        void root.offsetHeight;
+        root.classList.toggle('dark', theme === 'dark');
+        void root.offsetHeight; // Force reflow
     }, [theme]);
-
-    // Apply theme immediately on mount to prevent flash
-    useEffect(() => {
-        const root = document.documentElement;
-        if (theme === 'dark') {
-            root.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-        }
-    }, []);
 
     // --- Data Fetching ---
 
@@ -850,28 +788,7 @@ const App = () => {
     );
 };
 
-// --- Header and Footer Components (Moved outside App for clarity) ---
-
-const NavItem = ({ href, children, Icon }) => {
-    const handleClick = (e) => {
-        e.preventDefault();
-        const targetId = href.substring(1);
-        const targetElement = document.getElementById(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-    return (
-        <a
-            href={href}
-            onClick={handleClick}
-            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium text-sm lg:text-base"
-        >
-            <Icon className="w-5 h-5 mr-1 hidden sm:inline" />
-            {children}
-        </a>
-    );
-};
+// --- Header Component ---
 
 const Header = ({ theme, toggleTheme }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -896,11 +813,7 @@ const Header = ({ theme, toggleTheme }) => {
                             href={item.href}
                             onClick={(e) => {
                                 e.preventDefault();
-                                const targetId = item.href.substring(1);
-                                const targetElement = document.getElementById(targetId);
-                                if (targetElement) {
-                                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                                }
+                                scrollToSection(item.href.substring(1));
                             }}
                             className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                             aria-label={item.label}
@@ -937,12 +850,7 @@ const Header = ({ theme, toggleTheme }) => {
                         </span>
                     </a>
                     <button
-                        onClick={() => {
-                            const element = document.getElementById('resume');
-                            if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
-                            }
-                        }}
+                        onClick={() => scrollToSection('resume')}
                         className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-all duration-300 hover:scale-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                         aria-label="Download Resume"
                     >
@@ -968,7 +876,7 @@ const Header = ({ theme, toggleTheme }) => {
             <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 transition-colors duration-500">
                 <div className="px-4 py-3">
                     <div className="flex justify-between items-center">
-                        <a href="#hero" className="text-2xl font-extrabold text-[#A28BA6] dark:text-[#B9B9B0] transition-colors" onClick={(e) => { e.preventDefault(); document.getElementById('hero').scrollIntoView({ behavior: 'smooth' }); }}>
+                        <a href="#hero" className="text-2xl font-extrabold text-[#A28BA6] dark:text-[#B9B9B0] transition-colors" onClick={(e) => { e.preventDefault(); scrollToSection('hero'); }}>
                             <span className="text-2xl font-bold tracking-tight">AV</span>
                         </a>
 
@@ -1011,11 +919,7 @@ const Header = ({ theme, toggleTheme }) => {
                                     onClick={(e) => {
                                         e.preventDefault();
                                         setIsMenuOpen(false);
-                                        const targetId = item.href.substring(1);
-                                        const targetElement = document.getElementById(targetId);
-                                        if (targetElement) {
-                                            targetElement.scrollIntoView({ behavior: 'smooth' });
-                                        }
+                                        scrollToSection(item.href.substring(1));
                                     }}
                                     className="flex items-center text-gray-600 dark:text-gray-300 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors font-medium py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                                 >
