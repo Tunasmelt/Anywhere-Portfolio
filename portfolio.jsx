@@ -1,11 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Home, Zap, Code, Mail, Briefcase, X, Palette, Database, GitBranch, LayoutGrid, Linkedin, Github, Sun, Moon, ChevronDown } from 'lucide-react';
+import { Home, Zap, Code, Mail, Briefcase, X, Palette, Database, GitBranch, LayoutGrid, Linkedin, Github, Sun, Moon, ChevronDown, Download as DownloadIcon } from 'lucide-react';
 
 // Global constants
 const PROJECT_PLACEHOLDER_IMAGE = "https://placehold.co/600x400/1e293b/f8fafc?text=Project+Visual";
 const PORTFOLIO_STORAGE_KEY = 'portfolio_data';
 const CONTACT_MESSAGES_STORAGE_KEY = 'contact_messages';
-const DATA_VERSION = '2.0'; // Increment this to force localStorage refresh
+const DATA_VERSION = '3.0'; // Increment this to force localStorage refresh
+
+// Lightweight, privacy-friendly event logger
+const logEvent = (name, payload = {}) => {
+    if (typeof window === 'undefined') return;
+    // Replace with real analytics hook if desired
+    console.log('[analytics]', name, payload);
+};
 
 // --- Utility Functions ---
 
@@ -75,16 +82,56 @@ const useLocalStorage = (key, initialState) => {
 
 // --- Custom Components ---
 
-const SectionTitle = ({ children, id, className = "" }) => (
-    <h2 id={id} className={`text-3xl sm:text-4xl font-extrabold pb-3 mb-8 relative inline-block ${className}`}>
+const FadeInOnScroll = ({ as: Component = 'div', className = "", style = {}, children, ...rest }) => {
+    const ref = useFadeOnScroll();
+    return (
+        <Component
+            ref={ref}
+            className={`fade-scroll ${className}`}
+            style={style}
+            {...rest}
+        >
+            {children}
+        </Component>
+    );
+};
+
+const SectionTitle = React.forwardRef(({ children, id, className = "" }, ref) => (
+    <h2
+        ref={ref}
+        id={id}
+        className={`text-3xl sm:text-4xl font-extrabold pb-3 mb-8 relative inline-block ${className}`}
+    >
         {children}
         <span className="block h-1 w-20 bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] dark:from-[#A28BA6] dark:to-[#B9B9B0] absolute bottom-0 left-0 rounded-full"></span>
     </h2>
-);
+));
+SectionTitle.displayName = 'SectionTitle';
 
-const AnimatedButton = ({ children, onClick, className = "", Icon, type = "button", disabled = false, variant = "primary" }) => {
-    let baseStyles = "flex items-center justify-center font-semibold px-6 py-3 rounded-xl transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-lg active:shadow-sm disabled:opacity-50 disabled:pointer-events-none";
+const AnimatedButton = ({
+    children,
+    onClick,
+    className = "",
+    Icon,
+    type = "button",
+    disabled = false,
+    variant = "primary",
+    as: Component = 'button',
+    ...rest
+}) => {
+    const isButton = Component === 'button';
+    let baseStyles = "flex items-center justify-center font-semibold px-6 py-3 rounded-xl transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-lg active:shadow-sm disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black";
     let variantStyles;
+    const disabledOverlay = !isButton && disabled ? ' pointer-events-none opacity-50' : '';
+
+    const handleClick = (e) => {
+        if (disabled) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+        onClick?.(e);
+    };
 
     switch (variant) {
         case 'secondary':
@@ -98,15 +145,17 @@ const AnimatedButton = ({ children, onClick, className = "", Icon, type = "butto
     }
 
     return (
-        <button
-            type={type}
-            onClick={onClick}
-            className={`${baseStyles} ${variantStyles} ${className}`}
-            disabled={disabled}
+        <Component
+            type={isButton ? type : undefined}
+            onClick={handleClick}
+            className={`${baseStyles} ${variantStyles} ${className}${disabledOverlay}`}
+            disabled={isButton ? disabled : undefined}
+            aria-disabled={!isButton && disabled ? true : undefined}
+            {...rest}
         >
             {Icon && <Icon className="w-5 h-5 mr-2" />}
             {children}
-        </button>
+        </Component>
     );
 };
 
@@ -138,6 +187,7 @@ const Hero = ({ profile }) => {
         const element = document.getElementById('projects');
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
+            logEvent('cta_scroll_projects');
         }
     };
 
@@ -258,6 +308,7 @@ const ProjectCard = ({ project, theme }) => {
                     alt={`${project.name} dashboard mockup`}
                     className="w-full h-full object-cover object-top"
                     onError={(e) => e.currentTarget.src = PROJECT_PLACEHOLDER_IMAGE}
+                    loading="lazy"
                 />
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-[#A28BA6] to-[#B9B9B0] dark:from-[#A28BA6] dark:to-[#B9B9B0] text-[#1C1D21] text-xs font-medium px-3 py-1 rounded-full shadow-md flex items-center">
                     <LayoutGrid className="w-3 h-3 mr-1 text-[#1C1D21]" />
@@ -281,28 +332,36 @@ const ProjectCard = ({ project, theme }) => {
                     </a>
                 </div>
 
-                <h3 className={`text-3xl font-extrabold mb-4 ${titleColor} fade-scroll`} ref={useFadeOnScroll()} style={{ transitionDelay: '60ms' }}>
+                <FadeInOnScroll
+                    as="h3"
+                    className={`text-3xl font-extrabold mb-4 ${titleColor}`}
+                    style={{ transitionDelay: '60ms' }}
+                >
                     {project.name}
-                </h3>
-                <p className={`mb-6 text-base ${textColor} fade-scroll`} ref={useFadeOnScroll()} style={{ transitionDelay: '100ms' }}>
-                    {project.description}
-                </p>
+                </FadeInOnScroll>
 
-                <h4
-                    className={`text-xl font-bold mb-4 ${titleColor} border-b border-[#A28BA6]/60 dark:border-[#B9B9B0]/50 pb-2 inline-block fade-scroll`}
-                    ref={useFadeOnScroll()}
+                <FadeInOnScroll
+                    as="p"
+                    className={`mb-6 text-base ${textColor}`}
+                    style={{ transitionDelay: '100ms' }}
+                >
+                    {project.description}
+                </FadeInOnScroll>
+
+                <FadeInOnScroll
+                    as="h4"
+                    className={`text-xl font-bold mb-4 ${titleColor} border-b border-[#A28BA6]/60 dark:border-[#B9B9B0]/50 pb-2 inline-block`}
                     style={{ transitionDelay: '140ms' }}
                 >
                     Key Steps & Process
-                </h4>
+                </FadeInOnScroll>
 
                 {/* Key Steps List */}
                 <div className="space-y-4">
                     {project.keySteps?.map((step, idx) => (
-                        <div
+                        <FadeInOnScroll
                             key={idx}
-                            className={`flex items-start p-4 rounded-xl shadow-md border ${isDarkMode ? 'border-gray-800' : 'border-gray-300'} ${stepBg} fade-scroll`}
-                            ref={useFadeOnScroll()}
+                            className={`flex items-start p-4 rounded-xl shadow-md border ${isDarkMode ? 'border-gray-800' : 'border-gray-300'} ${stepBg}`}
                             style={{ transitionDelay: `${180 + idx * 70}ms` }}
                         >
                             <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center mr-3 font-bold text-sm ${stepNumberBg}`}>
@@ -311,7 +370,7 @@ const ProjectCard = ({ project, theme }) => {
                             <p className={`text-base ${textColor} pt-0.5`}>
                                 {step}
                             </p>
-                        </div>
+                        </FadeInOnScroll>
                     ))}
                 </div>
 
@@ -375,27 +434,26 @@ const Projects = ({ projects, theme }) => {
     return (
         <section id="projects" className="py-12 lg:py-16 bg-gradient-to-br from-[#E8D8DD] to-[#DDD1D8] dark:from-[#1C1D21] dark:to-[#2A2B30] transition-colors duration-500">
             <div className="container mx-auto px-4">
-                <SectionTitle
-                    className="text-gray-900 dark:text-white fade-scroll"
-                    id="projects"
-                    ref={useFadeOnScroll()}
-                >
-                    Key Analytical Projects
-                </SectionTitle>
+                <FadeInOnScroll>
+                    <SectionTitle
+                        className="text-gray-900 dark:text-white"
+                        id="projects"
+                    >
+                        Key Analytical Projects
+                    </SectionTitle>
+                </FadeInOnScroll>
 
                 <div className="space-y-20">
                     {projectsToRender.map((project, index) => (
-                        <div
+                        <FadeInOnScroll
                             key={project.id || index}
-                            className="fade-scroll"
-                            ref={useFadeOnScroll()}
                             style={{ transitionDelay: `${index * 80 + 80}ms` }}
                         >
                             <ProjectCard
                                 project={project}
                                 theme={theme}
                             />
-                        </div>
+                        </FadeInOnScroll>
                     ))}
                 </div>
             </div>
@@ -407,18 +465,18 @@ const Contact = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
-    const [status, setStatus] = useState('');
+    const [status, setStatus] = useState({ message: '', tone: 'idle' });
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!name || !email || !message) {
-            setStatus('Please fill in all fields.');
+            setStatus({ message: 'Please fill in all fields.', tone: 'error' });
             return;
         }
 
         setIsLoading(true);
-        setStatus('Sending...');
+        setStatus({ message: 'Sending...', tone: 'info' });
 
         try {
             // Save to localStorage
@@ -434,13 +492,14 @@ const Contact = () => {
             messages.push(newMessage);
             localStorage.setItem(CONTACT_MESSAGES_STORAGE_KEY, JSON.stringify(messages));
 
-            setStatus('Message sent successfully! I will get back to you soon.');
+            setStatus({ message: 'Message sent successfully! I will get back to you soon.', tone: 'success' });
+            logEvent('contact_submitted', { name, emailLength: email.length });
             setName('');
             setEmail('');
             setMessage('');
         } catch (error) {
             console.error("Error submitting contact form: ", error);
-            setStatus('Failed to send message. Please try again later.');
+            setStatus({ message: 'Failed to send message. Please try again later.', tone: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -464,6 +523,7 @@ const Contact = () => {
                 <form
                     onSubmit={handleSubmit}
                     className="space-y-4 bg-gradient-to-br from-[#F1E3E4] to-[#E8D8DD] dark:from-[#2A2B30] dark:to-[#1C1D21] p-8 rounded-xl shadow-2xl border-2 border-[#CBCBCC] dark:border-[#3a3a3a]"
+                    aria-busy={isLoading}
                 >
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-800 dark:text-gray-100 mb-1">Name</label>
@@ -498,13 +558,12 @@ const Contact = () => {
                             className="w-full px-4 py-3 border border-[#d8d8d8] dark:border-[#3a3a3a] rounded-lg focus:ring-[#A28BA6] focus:border-[#A28BA6] dark:focus:ring-[#A28BA6] dark:focus:border-[#A28BA6] dark:bg-[#1C1D21] dark:text-[#E4E4E4] bg-white text-gray-800 transition-colors resize-none"
                         ></textarea>
                     </div>
-                    {status && (
-                        <p
-                            className={`text-center font-medium ${status.includes('success') ? 'text-green-500' : 'text-red-500'}`}
-                        >
-                            {status}
-                        </p>
-                    )}
+                    <p
+                        aria-live="polite"
+                        className={`text-center font-medium min-h-[1.5rem] ${status.tone === 'success' ? 'text-green-600' : status.tone === 'error' ? 'text-red-500' : 'text-gray-700 dark:text-gray-200'}`}
+                    >
+                        {status.message}
+                    </p>
                     <AnimatedButton
                         type="submit"
                         Icon={Mail}
@@ -514,6 +573,91 @@ const Contact = () => {
                         {isLoading ? 'Sending...' : 'Send Message'}
                     </AnimatedButton>
                 </form>
+            </div>
+        </section>
+    );
+};
+
+const ImpactMetrics = ({ metrics = [] }) => {
+    if (!metrics.length) return null;
+    return (
+        <section id="impact" className="py-16 lg:py-20 bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1f2937] text-white">
+            <div className="container mx-auto px-4">
+                <SectionTitle className="text-white">Impact At A Glance</SectionTitle>
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                    {metrics.map((metric, idx) => (
+                        <FadeInOnScroll
+                            key={metric.label}
+                            className="rounded-2xl bg-white/5 border border-white/10 p-6 shadow-2xl backdrop-blur-sm transition-transform duration-300 hover:-translate-y-1"
+                            style={{ transitionDelay: `${idx * 80}ms` }}
+                        >
+                            <p className="text-sm uppercase tracking-[0.1em] text-gray-300 mb-3">{metric.label}</p>
+                            <p className="text-4xl font-extrabold mb-2 text-[#B9B9B0]">{metric.value}</p>
+                            <p className="text-gray-200 leading-relaxed">{metric.detail}</p>
+                        </FadeInOnScroll>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const ResumeCTA = ({ resumeUrl }) => (
+    <section className="py-14 lg:py-16 bg-gradient-to-r from-[#A28BA6] via-[#B9B9B0] to-[#CBCBCC] dark:from-[#1C1D21] dark:via-[#2A2B30] dark:to-[#1C1D21]">
+        <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-6 bg-white/80 dark:bg-black/70 border border-white/30 dark:border-gray-700 rounded-2xl px-6 py-8 shadow-2xl backdrop-blur">
+                <div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-2">Download my resume</h3>
+                    <p className="text-gray-700 dark:text-gray-200 max-w-2xl">A concise summary of projects, metrics, and the toolchains I build with. Updated this quarter.</p>
+                </div>
+                <AnimatedButton
+                    as="a"
+                    href={resumeUrl || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    Icon={DownloadIcon}
+                    className="w-full sm:w-auto"
+                    onClick={() => logEvent('resume_viewed')}
+                >
+                    View PDF
+                </AnimatedButton>
+            </div>
+        </div>
+    </section>
+);
+
+const Testimonials = ({ testimonials = [] }) => {
+    if (!testimonials.length) return null;
+    return (
+        <section id="testimonials" className="py-16 lg:py-20 bg-gradient-to-br from-[#E8D8DD] to-[#DDD1D8] dark:from-[#0f172a] dark:to-[#111827]">
+            <div className="container mx-auto px-4">
+                <FadeInOnScroll>
+                    <SectionTitle className="text-gray-900 dark:text-white">Testimonials</SectionTitle>
+                </FadeInOnScroll>
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    {testimonials.map((person, idx) => (
+                        <FadeInOnScroll
+                            key={person.name}
+                            className="h-full rounded-2xl bg-white dark:bg-[#1f2937] border border-[#e5e7eb] dark:border-gray-700 p-6 shadow-lg flex flex-col"
+                            style={{ transitionDelay: `${idx * 80}ms` }}
+                        >
+                            <div className="flex items-center mb-4">
+                                <img
+                                    src={person.avatar}
+                                    alt={person.name}
+                                    className="w-12 h-12 rounded-full object-cover mr-3"
+                                    loading="lazy"
+                                    onError={(e) => e.currentTarget.style.display = 'none'}
+                                />
+                                <div>
+                                    <p className="font-semibold text-gray-900 dark:text-white">{person.name}</p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-300">{person.title}</p>
+                                </div>
+                            </div>
+                            <p className="text-gray-700 dark:text-gray-200 leading-relaxed flex-1">“{person.quote}”</p>
+                        </FadeInOnScroll>
+                    ))}
+                </div>
             </div>
         </section>
     );
@@ -568,69 +712,96 @@ const App = () => {
             // Initialize default data if it doesn't exist or version mismatch
             const defaultData = {
                 version: DATA_VERSION,
-                    profile: {
-                        name: "Alex Vercetti",
-                        designation: "Senior Data Analyst",
-                        bio: "I'm a data analyst with a passion for turning raw data into strategic insights that drive business decisions. With expertise in Python, SQL, and machine learning, I specialize in building predictive models, automating data workflows, and creating compelling visualizations. My approach combines technical rigor with clear communication, ensuring that complex analyses translate into actionable recommendations for stakeholders at all levels."
+                profile: {
+                    name: "Alex Vercetti",
+                    designation: "Senior Data Analyst",
+                    bio: "I'm a data analyst with a passion for turning raw data into strategic insights that drive business decisions. With expertise in Python, SQL, and machine learning, I specialize in building predictive models, automating data workflows, and creating compelling visualizations. My approach combines technical rigor with clear communication, ensuring that complex analyses translate into actionable recommendations for stakeholders at all levels."
+                },
+                resumeUrl: "https://example.com/resume.pdf",
+                metrics: [
+                    { label: "Revenue unlocked", value: "$4.2M", detail: "attributed to analytics-driven initiatives across e-commerce and SaaS" },
+                    { label: "Pipelines automated", value: "38", detail: "ETL/ELT jobs with alerting and observability" },
+                    { label: "Models in production", value: "9", detail: "churn, LTV, propensity, and anomaly detection" },
+                    { label: "Stakeholder NPS", value: "+67", detail: "based on quarterly internal partner surveys" }
+                ],
+                technologies: [
+                    { name: "Python", icon: "Python" },
+                    { name: "SQL", icon: "SQL" },
+                    { name: "Terminal", icon: "Terminal" },
+                    { name: "ML/AI", icon: "ML" },
+                    { name: "Tableau", icon: "Tableau" },
+                    { name: "Excel", icon: "Excel" },
+                    { name: "Power BI", icon: "PowerBI" },
+                    { name: "R", icon: "R" },
+                ],
+                projects: [
+                    {
+                        id: '1',
+                        order: 1,
+                        name: "E-commerce Customer Churn Prediction",
+                        description: "Developed an end-to-end ML pipeline to identify high-risk customer segments, reducing churn by 12% in the subsequent quarter through targeted retention campaigns.",
+                        repositoryUrl: "https://github.com/alex/churn-prediction",
+                        imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+                        keySteps: [
+                            "Data ingestion and cleaning from multiple e-commerce sources",
+                            "Feature engineering (RFM value, purchase frequency, engagement metrics)",
+                            "Built and optimized Random Forest model achieving 87% accuracy",
+                            "Created a web-based deployment interface for real-time predictions",
+                            "Reported key drivers of churn to marketing team with actionable insights"
+                        ]
                     },
-                    technologies: [
-                        { name: "Python", icon: "Python" },
-                        { name: "SQL", icon: "SQL" },
-                        { name: "Terminal", icon: "Terminal" },
-                        { name: "ML/AI", icon: "ML" },
-                        { name: "Tableau", icon: "Tableau" },
-                        { name: "Excel", icon: "Excel" },
-                        { name: "Power BI", icon: "PowerBI" },
-                        { name: "R", icon: "R" },
-                    ],
-                    projects: [
-                        {
-                            id: '1',
-                            order: 1,
-                            name: "E-commerce Customer Churn Prediction",
-                            description: "Developed an end-to-end ML pipeline to identify high-risk customer segments, reducing churn by 12% in the subsequent quarter through targeted retention campaigns.",
-                            repositoryUrl: "https://github.com/alex/churn-prediction",
-                            imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
-                            keySteps: [
-                                "Data ingestion and cleaning from multiple e-commerce sources",
-                                "Feature engineering (RFM value, purchase frequency, engagement metrics)",
-                                "Built and optimized Random Forest model achieving 87% accuracy",
-                                "Created a web-based deployment interface for real-time predictions",
-                                "Reported key drivers of churn to marketing team with actionable insights"
-                            ]
-                        },
-                        {
-                            id: '2',
-                            order: 2,
-                            name: "Sales Performance Dashboard",
-                            description: "A comprehensive sales analytics dashboard that tracks KPIs, revenue trends, and regional performance in real-time. Built with Tableau and connected to live sales databases for dynamic insights.",
-                            repositoryUrl: "https://github.com/alex/sales-dashboard",
-                            imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
-                            keySteps: [
-                                "Collected and cleaned sales data from multiple sources (SAP, Salesforce, Excel)",
-                                "Performed exploratory data analysis to identify key metrics and patterns",
-                                "Created interactive Tableau visualizations with drill-down capabilities",
-                                "Implemented automated monthly data refresh pipeline using Python ETL scripts",
-                                "Designed user-friendly interface enabling stakeholders to filter by region, product, and time period"
-                            ]
-                        },
-                        {
-                            id: '3',
-                            order: 3,
-                            name: "Market Segmentation & Customer Insights",
-                            description: "Applied unsupervised learning techniques to segment 500K+ customers into distinct personas, enabling targeted marketing campaigns that increased conversion rates by 18% and improved customer lifetime value.",
-                            repositoryUrl: "https://github.com/alex/customer-segmentation",
-                            imageUrl: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop",
-                            keySteps: [
-                                "Aggregated customer behavior data from CRM, transaction logs, and web analytics",
-                                "Applied K-means clustering and hierarchical clustering techniques",
-                                "Validated clusters using silhouette scores and business logic",
-                                "Created detailed customer personas with demographic and behavioral characteristics",
-                                "Delivered presentations to executive team with strategic recommendations for each segment"
-                            ]
-                        },
-                    ]
-                };
+                    {
+                        id: '2',
+                        order: 2,
+                        name: "Sales Performance Dashboard",
+                        description: "A comprehensive sales analytics dashboard that tracks KPIs, revenue trends, and regional performance in real-time. Built with Tableau and connected to live sales databases for dynamic insights.",
+                        repositoryUrl: "https://github.com/alex/sales-dashboard",
+                        imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+                        keySteps: [
+                            "Collected and cleaned sales data from multiple sources (SAP, Salesforce, Excel)",
+                            "Performed exploratory data analysis to identify key metrics and patterns",
+                            "Created interactive Tableau visualizations with drill-down capabilities",
+                            "Implemented automated monthly data refresh pipeline using Python ETL scripts",
+                            "Designed user-friendly interface enabling stakeholders to filter by region, product, and time period"
+                        ]
+                    },
+                    {
+                        id: '3',
+                        order: 3,
+                        name: "Market Segmentation & Customer Insights",
+                        description: "Applied unsupervised learning techniques to segment 500K+ customers into distinct personas, enabling targeted marketing campaigns that increased conversion rates by 18% and improved customer lifetime value.",
+                        repositoryUrl: "https://github.com/alex/customer-segmentation",
+                        imageUrl: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop",
+                        keySteps: [
+                            "Aggregated customer behavior data from CRM, transaction logs, and web analytics",
+                            "Applied K-means clustering and hierarchical clustering techniques",
+                            "Validated clusters using silhouette scores and business logic",
+                            "Created detailed customer personas with demographic and behavioral characteristics",
+                            "Delivered presentations to executive team with strategic recommendations for each segment"
+                        ]
+                    },
+                ],
+                testimonials: [
+                    {
+                        name: "Priya Das",
+                        title: "Director of Growth, Ardent Retail",
+                        quote: "Alex turned months of messy data into a clean revenue engine. The churn model alone changed how we spend every marketing dollar.",
+                        avatar: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop"
+                    },
+                    {
+                        name: "Samir Patel",
+                        title: "VP Engineering, Northwind SaaS",
+                        quote: "He shipped production-grade pipelines with observability and wrote the docs my team actually reads. Rare combo of rigor and clarity.",
+                        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop"
+                    },
+                    {
+                        name: "Jordan Lee",
+                        title: "Head of Product, Nimbus Fintech",
+                        quote: "Our exec reviews finally have signal. The dashboards are crisp, the models are monitored, and we ship faster because of Alex's frameworks.",
+                        avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200&h=200&fit=crop"
+                    }
+                ]
+            };
             setData(defaultData);
             // Save default data to localStorage
             localStorage.setItem(PORTFOLIO_STORAGE_KEY, JSON.stringify(defaultData));
@@ -682,11 +853,14 @@ const App = () => {
             />
             <main>
                 <Hero profile={data.profile} />
+                <ImpactMetrics metrics={data.metrics} />
                 <TechnologyBar technologies={data.technologies} />
                 <Projects
                     projects={data.projects}
                     theme={theme}
                 />
+                <Testimonials testimonials={data.testimonials} />
+                <ResumeCTA resumeUrl={data.resumeUrl} />
                 <Contact />
             </main>
         </div>
@@ -721,8 +895,10 @@ const Header = ({ theme, toggleTheme }) => {
 
     const navItems = [
         { href: "#hero", label: "Home", Icon: Home },
+        { href: "#impact", label: "Impact", Icon: Zap },
         { href: "#technologies", label: "Skills", Icon: Code },
         { href: "#projects", label: "Projects", Icon: Briefcase },
+        { href: "#testimonials", label: "Social Proof", Icon: LayoutGrid },
         { href: "#contact", label: "Contact", Icon: Mail },
     ];
 
@@ -744,7 +920,7 @@ const Header = ({ theme, toggleTheme }) => {
                                     targetElement.scrollIntoView({ behavior: 'smooth' });
                                 }
                             }}
-                            className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors"
+                            className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                             aria-label={item.label}
                         >
                             <item.Icon className="w-6 h-6" />
@@ -760,19 +936,19 @@ const Header = ({ theme, toggleTheme }) => {
             <aside className="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 flex-col items-center py-6 px-3 bg-gray-100/95 dark:bg-black/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-400 dark:border-gray-800/50 transition-colors duration-500">
                 {/* Social & Theme Icons */}
                 <nav className="flex flex-col items-center space-y-6">
-                    <a href="mailto:your.email@example.com" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors" aria-label="Email">
+                    <a href="mailto:your.email@example.com" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="Email">
                         <Mail className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             Email
                         </span>
                     </a>
-                    <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors" aria-label="LinkedIn">
+                    <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="LinkedIn">
                         <Linkedin className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             LinkedIn
                         </span>
                     </a>
-                    <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors" aria-label="GitHub">
+                    <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black" aria-label="GitHub">
                         <Github className="w-6 h-6" />
                         <span className="absolute right-full mr-4 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             GitHub
@@ -780,7 +956,7 @@ const Header = ({ theme, toggleTheme }) => {
                     </a>
                     <button
                         onClick={toggleTheme}
-                        className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors"
+                        className="group relative flex items-center justify-center w-12 h-12 text-gray-600 dark:text-gray-400 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                         aria-label="Toggle theme"
                     >
                         {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
@@ -844,7 +1020,7 @@ const Header = ({ theme, toggleTheme }) => {
                                             targetElement.scrollIntoView({ behavior: 'smooth' });
                                         }
                                     }}
-                                    className="flex items-center text-gray-600 dark:text-gray-300 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors font-medium py-2"
+                                    className="flex items-center text-gray-600 dark:text-gray-300 hover:text-[#A28BA6] dark:hover:text-[#B9B9B0] transition-colors font-medium py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#A28BA6] dark:focus-visible:ring-[#B9B9B0] focus-visible:ring-offset-white dark:focus-visible:ring-offset-black"
                                 >
                                     <item.Icon className="w-5 h-5 mr-3" />
                                     {item.label}

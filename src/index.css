@@ -69,4 +69,8 @@ html, body {
     opacity: 1 !important;
     transform: none !important;
   }
+
+  .animate-bounce {
+    animation: none !important;
+  }
 }
